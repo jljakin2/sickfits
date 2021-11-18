@@ -1,8 +1,10 @@
 import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
+import Router from 'next/router';
 import useForm from '../lib/useForm';
 import Form from './styles/Form';
 import DisplayError from './ErrorMessage';
+import { ALL_PRODUCTS_QUERY } from './Products';
 
 const CREATE_PRODUCT_MUTATION = gql`
   mutation CREATE_PRODUCT_MUTATION(
@@ -43,6 +45,8 @@ export default function CreateProducts() {
     CREATE_PRODUCT_MUTATION,
     {
       variables: inputs,
+      // the refetchQueries tells graphql to rerun a query in order to update the backend and frontend with the new information that is coming from the mutation
+      refetchQueries: [{ query: ALL_PRODUCTS_QUERY }],
     }
   );
 
@@ -54,8 +58,12 @@ export default function CreateProducts() {
         // submit the input fields to the backend
         // if you don't know what the variables are for creating the product at the time you use the "useMutation" hook,
         // you can add them to "createProduct" like this: createProduct({variables: $example})
-        await createProduct();
+        const res = await createProduct();
         clearForm();
+        // go to the product's page
+        Router.push({
+          pathname: `/product/${res.data.createProduct.id}`,
+        });
       }}
     >
       <DisplayError error={error} />
