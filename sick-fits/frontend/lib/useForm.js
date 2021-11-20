@@ -1,8 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function useForm(initial = {}) {
   // create a state object for our inputs
   const [inputs, setInputs] = useState(initial);
+
+  // ===== NOTE: note needed for every implementation of this hook ======
+  // this portion is specific to solving the bug where when we want to update a product and provide the existing initial data as the initial data for the state
+  // everything works fine until we go to another product. instead we should watch for when the initial values are changing and update state accordingly
+  const initialValues = Object.values(initial).join('');
+
+  useEffect(() => {
+    // this function runs when the things we are watching change
+    setInputs(initial);
+  }, [initialValues]);
+  // =====================
+  // ====================================
 
   function handleChange(e) {
     let { value, name, type } = e.target;
